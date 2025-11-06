@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Bank of America • Internal Wire Tracker (UX-Improved)</title>
+<title>Bank of America • Internal Wire Tracker</title>
 <style>
   :root{
     --bofa-red:#d4001a;
@@ -12,88 +12,45 @@
     --muted:#6b7280;
     --card:#fff;
     --max-width:920px;
-    --ease: cubic-bezier(.2,.9,.2,1);
   }
   *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0;font-family:Inter,system-ui,Arial,Helvetica,sans-serif;
-    background:linear-gradient(180deg,var(--bg),#fafafa);
-    color:#0f172a;display:flex;flex-direction:column;align-items:center;
-    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
-  }
-  header{
-    width:100%;background:var(--bofa-blue);color:#fff;padding:14px 16px;
-    box-shadow:0 8px 30px rgba(2,6,23,0.12);
-  }
+  body{margin:0;font-family:Inter,system-ui,Arial,Helvetica,sans-serif;background:linear-gradient(180deg,var(--bg),#fafafa);color:#0f172a;display:flex;flex-direction:column;align-items:center}
+  header{width:100%;background:var(--bofa-blue);color:#fff;padding:14px 16px;box-shadow:0 8px 30px rgba(2,6,23,0.12)}
   .header-inner{max-width:var(--max-width);margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
   .brand{display:flex;align-items:center;gap:12px}
   .brand img{width:46px;height:46px;border-radius:8px;object-fit:cover}
-  .brand h1{margin:0;font-size:1rem;font-weight:800}
   main{width:100%;max-width:var(--max-width);padding:28px 16px 48px;margin:0 auto;flex:1;display:flex;flex-direction:column;gap:18px;align-items:stretch}
   .card{background:var(--card);border-radius:12px;padding:20px;display:flex;gap:12px;align-items:center;justify-content:space-between;box-shadow:0 14px 36px rgba(2,6,23,0.06)}
-  .card .left{display:flex;flex-direction:column;gap:6px}
-  .card h2{margin:0;font-size:1.05rem;font-weight:900}
-  .card p{margin:0;color:var(--muted);font-size:0.95rem}
-  .primary-btn{background:var(--bofa-red);color:white;border:none;padding:12px 18px;border-radius:10px;font-weight:800;cursor:pointer;box-shadow:0 10px 22px rgba(212,0,26,0.14);transition:transform .12s var(--ease)}
-  .primary-btn:active{transform:translateY(1px) scale(.998)}
-  .overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:9999;background:rgba(7,10,23,0.28);transition:opacity .22s ease}
+  .primary-btn{background:var(--bofa-red);color:white;border:none;padding:12px 18px;border-radius:10px;font-weight:800;cursor:pointer}
+  .overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:9999;background:rgba(7,10,23,0.28)}
   .overlay.visible{display:flex}
   .loader-box{background:rgba(255,255,255,0.98);padding:18px;border-radius:12px;display:flex;gap:14px;align-items:center;box-shadow:0 8px 24px rgba(2,6,23,0.12)}
-  .loader .dot{width:10px;height:10px;border-radius:50%;background:var(--bofa-blue);opacity:.9;margin-right:6px;animation:loader 1s infinite}
-  @keyframes loader{0%{transform:translateY(0)}50%{transform:translateY(-6px)}100%{transform:translateY(0)}}
-  .receipt-wrap{display:flex;justify-content:center;width:100%}
-  .receipt{width:100%;max-width:820px;background:var(--card);border-radius:12px;padding:22px;box-shadow:0 20px 48px rgba(2,6,23,0.08);position:relative;overflow:hidden;display:flex;flex-direction:column;gap:16px}
-  .receipt::after{content:"";position:absolute;inset:0;background-image:url('https://i.imgur.com/q4HmdZ6.png');background-repeat:no-repeat;background-position:center right;background-size:420px auto;opacity:0.06;transform:rotate(-6deg) translate(20px,-8px);pointer-events:none;filter:grayscale(1)}
-  .receipt-top{display:flex;align-items:center;justify-content:space-between;gap:14px}
-  .receipt-info .org{font-weight:900;font-size:1.02rem}
-  .amount{font-weight:900;color:var(--bofa-red);font-size:2rem}
-  .muted{color:var(--muted)}
-  .actions{display:flex;gap:12px;justify-content:flex-end}
-  .small-link{background:transparent;border:none;color:var(--bofa-blue);font-weight:800;cursor:pointer}
-  .hidden{display:none !important}
+  .spinner-white{width:72px;height:72px;border-radius:50%;border:10px solid rgba(255,255,255,0.18);border-top-color:#fff;animation:spin 0.9s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .transfer-fullscreen{position:fixed;inset:0;z-index:200000;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(212,0,26,0.98),var(--bofa-red));color:#fff;padding:20px}
+  .transfer-fullscreen.active{display:flex}
+  .transfer-card{max-width:720px;width:100%;display:flex;flex-direction:column;align-items:center;gap:20px;padding:28px;border-radius:16px;background:rgba(255,255,255,0.03)}
+  .transfer-text{font-size:1.25rem;font-weight:900}
+  .transfer-actions{display:flex;gap:14px}
+  .cancel-btn{background:var(--bofa-blue);color:#fff;border:none;padding:10px 18px;border-radius:10px;font-weight:900;cursor:pointer}
+  .view-receipt{background:transparent;border:2px solid rgba(255,255,255,0.12);color:#fff;padding:8px 14px;border-radius:10px;cursor:pointer;font-weight:800}
 
-  /* RED TRANSFER FULLSCREEN (IMPROVED UX) */
-  .transfer-fullscreen {
-    position: fixed; inset: 0; z-index: 200000; display: none;
-    align-items: center; justify-content: center; flex-direction: column; text-align:center;
-    background: linear-gradient(180deg, rgba(212,0,26,0.98), var(--bofa-red));
-    color: #fff; padding: 20px;
-    transition: opacity .25s var(--ease);
-  }
-  .transfer-fullscreen.active { display:flex; }
-  .transfer-card{
-    max-width:720px; width:100%; display:flex; flex-direction:column; align-items:center; gap:20px;
-    padding:28px; border-radius:16px; background: rgba(255,255,255,0.03);
-    box-shadow: 0 30px 80px rgba(2,6,23,0.35);
-  }
-  .spinner-white {
-    width:72px; height:72px; border-radius:50%; border:10px solid rgba(255,255,255,0.18);
-    border-top-color:#fff; animation:spin 0.9s linear infinite;
-  }
-  .transfer-text { font-size:1.25rem; font-weight:900; letter-spacing:0.2px; }
-  .transfer-sub { color: rgba(255,255,255,0.92); font-weight:700; opacity:.95 }
-  .transfer-actions { display:flex; gap:14px; align-items:center; margin-top:6px; }
-  .cancel-btn { background:var(--bofa-blue); color:#fff; border:none; padding:10px 18px; border-radius:10px; font-weight:900; cursor:pointer; }
-  .view-receipt { background:transparent; border:2px solid rgba(255,255,255,0.12); color:#fff; padding:8px 14px; border-radius:10px; cursor:pointer; font-weight:800; }
+  /* modal for download */
+  .modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.55);display:none;align-items:center;justify-content:center;z-index:300000}
+  .modal-backdrop.show{display:flex}
+  .modal{background:#fff;border-radius:12px;max-width:520px;width:92%;padding:18px;box-shadow:0 20px 60px rgba(2,6,23,0.3)}
+  .modal h3{margin:0 0 8px 0}
+  .modal p{margin:0 0 12px 0;color:#374151}
+  .btn-row{display:flex;gap:10px;justify-content:flex-end}
+  .btn{padding:10px 14px;border-radius:8px;border:none;font-weight:800;cursor:pointer}
+  .btn.primary{background:var(--bofa-blue);color:#fff}
+  .btn.ghost{background:transparent;border:2px solid var(--bofa-blue);color:var(--bofa-blue)}
 
-  .try-again {
-    width:88px;height:88px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-    background:transparent;border:4px solid #fff;color:#fff;font-size:28px;cursor:pointer;
-    box-shadow:0 8px 30px rgba(0,0,0,0.15);
-  }
-
-  /* Accessibility focus */
-  button:focus { outline: 3px solid rgba(3,102,214,0.18); outline-offset: 3px; }
-
-  @media (max-width:720px){
-    .transfer-card{padding:18px;border-radius:12px}
-    .spinner-white{width:56px;height:56px}
-    .transfer-text{font-size:1.05rem}
-  }
+  footer{padding:18px 12px;text-align:center;color:var(--muted);font-size:0.9rem;width:100%;max-width:var(--max-width);margin:0 auto}
 </style>
 </head>
 <body>
+
 <header>
   <div class="header-inner">
     <div class="brand">
@@ -106,9 +63,9 @@
 
 <main>
   <section class="card" id="main-card" aria-live="polite">
-    <div class="left">
+    <div style="display:flex;flex-direction:column">
       <h2>Wire Transfer</h2>
-      <p class="muted">Transaction queued on the payments network. Click to check status.</p>
+      <p style="margin:0;color:var(--muted)">Transaction queued on the payments network. Click to check status.</p>
     </div>
 
     <div style="display:flex;align-items:center;gap:12px">
@@ -118,274 +75,260 @@
         <div style="padding:6px 10px;border-radius:999px;background:#fff;border:1px solid rgba(2,6,23,0.04);font-weight:800;color:var(--muted)">Complete</div>
       </div>
 
-      <button id="track-btn" class="primary-btn" aria-controls="receipt" aria-label="Check transfer status">
-        Check Status
-      </button>
+      <button id="track-btn" class="primary-btn" aria-controls="receipt" aria-label="Check transfer status">Check Status</button>
     </div>
   </section>
-
-  <div id="overlay" class="overlay" aria-hidden="true">
-    <div class="loader-box" role="status" aria-live="polite">
-      <div class="loader" aria-hidden="true"><span class="dot" style="animation-delay:0s"></span><span class="dot" style="animation-delay:.08s"></span><span class="dot" style="animation-delay:.16s"></span></div>
-      <div style="min-width:220px">
-        <div style="font-weight:800">Checking transfer status</div>
-        <div style="color:var(--muted);font-size:0.95rem">Connecting to payments network…</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Receipt pane (kept on page) -->
-  <div id="receiptWrap" class="receipt-wrap hidden" aria-hidden="true">
-    <article class="receipt" id="receipt">
-      <div class="receipt-top">
-        <div>
-          <div class="receipt-info">
-            <div class="org">Bank of America</div>
-            <div class="sub muted">Wire Transfer Receipt</div>
-          </div>
-        </div>
-
-        <div class="amount-box">
-          <div class="small-label muted">Amount</div>
-          <div class="amount" id="amountEl">£9,785.90</div>
-        </div>
-      </div>
-
-      <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
-        <div>
-          <div class="muted">Beneficiary</div>
-          <div style="font-weight:900" id="benName">JASVIR SINGH DHILLON</div>
-        </div>
-        <div>
-          <div class="muted">Account</div>
-          <div style="font-weight:900" id="accNo">02269015</div>
-        </div>
-        <div>
-          <div class="muted">Sort Code</div>
-          <div style="font-weight:900" id="sortCode">04-29-09</div>
-        </div>
-        <div>
-          <div class="muted">Receipt</div>
-          <div style="font-weight:900" id="receiptNo">WTR-2025-0091</div>
-        </div>
-      </div>
-
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
-        <div class="muted">Notice: This receipt confirms a transfer attempt. The transaction will proceed after verification.</div>
-        <div class="actions">
-          <button id="openVerificationBtn" class="small-link">Open verification</button>
-          <button id="closeReceiptBtn" class="small-link" style="margin-left:8px">Close</button>
-        </div>
-      </div>
-    </article>
-  </div>
-
-  <!-- hidden codeWrap left minimal (kept) -->
-  <div id="codeWrap" class="hidden" aria-hidden="true"></div>
 </main>
 
-<!-- RED TRANSFER FULLSCREEN -->
-<div id="transferFull" class="transfer-fullscreen" aria-hidden="true" role="status" aria-live="polite">
-  <div class="transfer-card" role="dialog" aria-modal="true" aria-label="Transfer in progress">
-    <div class="spinner-white" aria-hidden="true"></div>
-    <div class="transfer-text">Transferring £9,785.90 to JASVIR SINGH DHILLON</div>
-    <div class="transfer-sub">Processing on payments network — do not close this screen</div>
-    <div class="transfer-actions">
-      <button id="cancelTransfer" class="cancel-btn">Cancel</button>
-      <button id="viewReceipt" class="view-receipt" aria-haspopup="true">View receipt</button>
+<!-- overlay + transfer fullscreen -->
+<div id="overlay" class="overlay" aria-hidden="true">
+  <div class="loader-box">
+    <div style="width:10px;height:10px;border-radius:50%;background:var(--bofa-blue);margin-right:8px;animation:loader 1s infinite"></div>
+    <div style="min-width:220px">
+      <div style="font-weight:800">Checking transfer status</div>
+      <div style="color:var(--muted);font-size:0.95rem">Connecting to payments network…</div>
     </div>
   </div>
 </div>
 
-<div class="debug-badge" id="debugBadge">debug: idle</div>
-<footer style="padding:18px 12px;text-align:center;color:var(--muted);font-size:0.9rem;width:100%;max-width:var(--max-width);margin:0 auto">
-  &copy; 2025 Bank of America Global Banking. All rights reserved.
-</footer>
+<div id="transferFull" class="transfer-fullscreen" aria-hidden="true">
+  <div class="transfer-card" role="dialog" aria-modal="true" aria-label="Transfer in progress">
+    <div class="spinner-white" id="transferSpinner" aria-hidden="true"></div>
+    <div class="transfer-text" id="transferText">Transferring £9,785.90 to JASVIR SINGH DHILLON</div>
+    <div class="transfer-sub">Processing on payments network — do not close this screen</div>
+    <div class="transfer-actions">
+      <button id="cancelTransfer" class="cancel-btn">Cancel</button>
+      <button class="view-receipt" id="viewReceiptBtn">View receipt</button>
+    </div>
+  </div>
+</div>
 
+<!-- Modal: Download PDF -->
+<div id="pdfModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal" role="document" aria-labelledby="pdfTitle">
+    <h3 id="pdfTitle">Download receipt as PDF</h3>
+    <p>This will generate a PDF of the receipt (red background, white text) containing the transfer details. Click <strong>Download PDF</strong> to save.</p>
+    <div style="font-size:0.95rem;margin-bottom:12px;color:#374151">
+      <div><strong>Beneficiary:</strong> JASVIR SINGH DHILLON</div>
+      <div><strong>Account:</strong> 02269015</div>
+      <div><strong>Sort code:</strong> 04-29-09</div>
+      <div><strong>Amount:</strong> £9,785.90</div>
+      <div><strong>Receipt ID:</strong> WTR-2025-0091</div>
+    </div>
+    <div class="btn-row">
+      <button id="closePdfModal" class="btn ghost">Cancel</button>
+      <button id="downloadPdfBtn" class="btn primary">Download PDF</button>
+    </div>
+  </div>
+</div>
+
+<footer>&copy; 2025 Bank of America Global Banking. All rights reserved.</footer>
+
+<!-- jsPDF from CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-/* - Only functional changes: beneficiary/account/sort code updated in DOM text.
-   - Access code remains 70194 (used in verification flow, unchanged).
-   - TEST_TIMEOUT_MS left at 1 hour (3600000). Change to 10000 for quick testing.
-*/
-
 (function(){
-  const TEST_TIMEOUT_MS = 3600000; // 1 hour; change to 10000 for testing
-
-  const btn = document.getElementById('track-btn');
+  // Elements
+  const trackBtn = document.getElementById('track-btn');
   const overlay = document.getElementById('overlay');
-  const receiptWrap = document.getElementById('receiptWrap');
   const transferFull = document.getElementById('transferFull');
-  const debugBadge = document.getElementById('debugBadge');
+  const pdfModal = document.getElementById('pdfModal');
+  const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+  const closePdfModal = document.getElementById('closePdfModal');
+  const viewReceiptBtn = document.getElementById('viewReceiptBtn');
+  const cancelTransferBtn = document.getElementById('cancelTransfer');
 
-  let transferTimer = null;
-  let pendingClick = false;
-  let inited = false;
-
-  function logDebug(msg){
-    console.log('[wire-tracker]', msg);
-    if(debugBadge) {
-      debugBadge.textContent = 'debug: ' + msg;
-      setTimeout(()=> debugBadge.textContent = 'debug: idle', 1400);
-    }
-  }
-
-  // Robust handler (can be called early)
-  window.handleTrackClick = function(){
-    if(!inited){
-      pendingClick = true;
-      logDebug('click queued (init not ready)');
-      return;
-    }
-    runCheckFlow();
+  // Static receipt data (per your request)
+  const receiptData = {
+    bank: 'Bank of America',
+    beneficiary: 'JASVIR SINGH DHILLON',
+    account: '02269015',
+    sortCode: '04-29-09',
+    amount: '£9,785.90',
+    receiptId: 'WTR-2025-0091',
+    reference: 'Internal Wire Tracker'
   };
 
-  // Early attach for clicks
-  if(btn){
-    btn.addEventListener('click', ()=> {
-      try{ window.handleTrackClick(); } catch(e){ pendingClick = true; }
-    });
+  // Robust click handling (queues early clicks)
+  window.__pendingHandle = false;
+  window.handleTrackClick = function(){ window.__pendingHandle = true; };
+
+  // Attach early click capture
+  if(trackBtn){
+    trackBtn.addEventListener('click', function(){ try{ window.handleTrackClick(); }catch(e){ window.__pendingHandle = true; }});
   }
 
-  async function runCheckFlow(){
-    try{
-      logDebug('Check Status clicked');
-      btn.disabled = true;
-      showOverlay();
-      await sleep(900);
-      hideOverlay();
-      startTransferOverlay();
-    } finally {
-      btn.disabled = false;
-    }
-  }
-
-  function showOverlay(){
-    overlay.classList.add('visible');
-    overlay.setAttribute('aria-hidden','false');
-    document.body.style.overflow = 'hidden';
-  }
-  function hideOverlay(){
-    overlay.classList.remove('visible');
-    overlay.setAttribute('aria-hidden','true');
-    document.body.style.overflow = '';
-  }
-
-  function startTransferOverlay(){
-    // restore default transfer card if try-again replaced it earlier
-    transferFull.innerHTML = `
-      <div class="transfer-card" role="dialog" aria-modal="true" aria-label="Transfer in progress">
-        <div class="spinner-white" aria-hidden="true"></div>
-        <div class="transfer-text">Transferring £9,785.90 to JASVIR SINGH DHILLON</div>
-        <div class="transfer-sub">Processing on payments network — do not close this screen</div>
-        <div class="transfer-actions">
-          <button id="cancelTransfer" class="cancel-btn">Cancel</button>
-          <button id="viewReceipt" class="view-receipt" aria-haspopup="true">View receipt</button>
-        </div>
-      </div>`;
-    bindTransferInnerButtons();
-
-    transferFull.classList.add('active');
-    transferFull.setAttribute('aria-hidden','false');
-
-    if(transferTimer) clearTimeout(transferTimer);
-    transferTimer = setTimeout(()=> {
-      showTryAgain();
-    }, TEST_TIMEOUT_MS);
-
-    setTimeout(()=> {
-      const cancel = document.getElementById('cancelTransfer');
-      if(cancel) cancel.focus();
-    }, 120);
-    logDebug('transfer overlay active');
-  }
-
-  function bindTransferInnerButtons(){
-    const cancel = document.getElementById('cancelTransfer');
-    const view = document.getElementById('viewReceipt');
-    if(cancel) cancel.addEventListener('click', cancelTransferOverlay, { once: true });
-    if(view) view.addEventListener('click', ()=> openReceipt(true));
-  }
-
-  function cancelTransferOverlay(){
-    if(transferTimer) clearTimeout(transferTimer);
-    transferFull.classList.remove('active');
-    transferFull.setAttribute('aria-hidden','true');
-    logDebug('transfer canceled');
-  }
-
-  function showTryAgain(){
-    transferFull.innerHTML = '';
-    transferFull.classList.add('active');
-    transferFull.setAttribute('aria-hidden','false');
-    const tryBtn = document.createElement('button');
-    tryBtn.className = 'try-again';
-    tryBtn.setAttribute('aria-label','Try transfer again');
-    tryBtn.innerHTML = '↻';
-    tryBtn.addEventListener('click', ()=> {
-      startTransferOverlay();
-    }, { once: true });
-    transferFull.appendChild(tryBtn);
-    tryBtn.focus();
-    logDebug('transfer moved to try-again state');
-  }
-
-  function openReceipt(fromTransfer){
-    // show receipt pane (kept on page). If fromTransfer=true keep transfer overlay visible behind it.
-    receiptWrap.classList.remove('hidden');
-    receiptWrap.setAttribute('aria-hidden','false');
-    receiptWrap.scrollIntoView({behavior:'smooth', block:'center'});
-    logDebug('receipt opened' + (fromTransfer ? ' (from transfer overlay)' : ''));
-  }
-
-  function closeReceipt(){
-    receiptWrap.classList.add('hidden');
-    receiptWrap.setAttribute('aria-hidden','true');
-    logDebug('receipt closed');
-  }
-
-  function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
-
-  // Init
+  // Init after DOM content loaded
   document.addEventListener('DOMContentLoaded', function init(){
-    inited = true;
-    logDebug('init ready');
+    // Replace placeholder handler with real one
+    window.handleTrackClick = runCheckFlow;
 
-    if(pendingClick){
-      pendingClick = false;
+    // If user clicked before init, call handler now
+    if(window.__pendingHandle){
+      window.__pendingHandle = false;
       runCheckFlow();
     }
 
-    // main track button (post-init) should run flow
-    const btnEarly = document.getElementById('track-btn');
-    if(btnEarly){
-      try{ btnEarly.removeEventListener('click', window.handleTrackClick); }catch(e){}
-      btnEarly.addEventListener('click', runCheckFlow);
-    }
-
-    // receipt open/close bindings
-    const openVerificationBtn = document.getElementById('openVerificationBtn');
-    const closeReceiptBtn = document.getElementById('closeReceiptBtn');
-
-    if(openVerificationBtn) openVerificationBtn.addEventListener('click', ()=> openReceipt(false));
-    if(closeReceiptBtn) closeReceiptBtn.addEventListener('click', closeReceipt);
-
-    // ensure transfer inner buttons are bound if overlay already present
-    bindTransferInnerButtons();
-
-    // ESC keyboard support
-    document.addEventListener('keydown', (e) => {
-      if(e.key === 'Escape'){
-        if(transferFull.classList.contains('active')){
-          cancelTransferOverlay();
-        } else if(overlay.classList.contains('visible')){
-          hideOverlay();
-        } else if(!receiptWrap.classList.contains('hidden')){
-          closeReceipt();
-        }
+    // Wire view receipt (the visible overlay button)
+    // Use a delegated handler on transferFull so the button works even if content is replaced
+    transferFull.addEventListener('click', (e)=>{
+      const btn = e.target.closest && e.target.closest('.view-receipt');
+      if(btn){
+        openPdfModal();
+      }
+      if(e.target && e.target.id === 'cancelTransfer'){
+        cancelTransfer();
       }
     });
 
-  }, { once:true });
+    // Also bind the static viewReceiptBtn for safety
+    const topView = document.getElementById('viewReceiptBtn');
+    if(topView) topView.addEventListener('click', openPdfModal);
+
+    // modal controls
+    downloadPdfBtn.addEventListener('click', generateAndDownloadPDF);
+    closePdfModal.addEventListener('click', closePdfModalFn);
+
+    // cancel transfer top-level
+    if(cancelTransferBtn) cancelTransferBtn.addEventListener('click', cancelTransfer);
+
+  });
+
+  // Simulated network check then show transfer fullscreen
+  async function runCheckFlow(){
+    try{
+      trackBtn.disabled = true;
+      showOverlay();
+      await sleep(900);
+      hideOverlay();
+      showTransferOverlay();
+    } finally {
+      trackBtn.disabled = false;
+    }
+  }
+
+  function showOverlay(){ overlay.classList.add('visible'); overlay.setAttribute('aria-hidden','false'); document.body.style.overflow = 'hidden'; }
+  function hideOverlay(){ overlay.classList.remove('visible'); overlay.setAttribute('aria-hidden','true'); document.body.style.overflow = ''; }
+
+  function showTransferOverlay(){
+    transferFull.classList.add('active');
+    transferFull.setAttribute('aria-hidden','false');
+  }
+  function cancelTransfer(){
+    transferFull.classList.remove('active');
+    transferFull.setAttribute('aria-hidden','true');
+  }
+
+  function openPdfModal(){
+    // populate modal info (if needed) - already static in markup
+    pdfModal.classList.add('show');
+    pdfModal.setAttribute('aria-hidden','false');
+  }
+  function closePdfModalFn(){
+    pdfModal.classList.remove('show');
+    pdfModal.setAttribute('aria-hidden','true');
+  }
+
+  // Generate PDF using jsPDF: red background + white text
+  async function generateAndDownloadPDF(){
+    // Close modal UI state so user sees download prompt
+    closePdfModalFn();
+
+    // Use jsPDF UMD import
+    const { jsPDF } = window.jspdf;
+
+    // Create A4 portrait 210x297 mm (we'll use 'mm' units)
+    const doc = new jsPDF({ unit: 'mm', format: 'a4', compress: true });
+
+    // Page dimensions in mm
+    const pageWidth = 210;
+    const pageHeight = 297;
+
+    // Draw full background rectangle in Bank red
+    doc.setFillColor(212,0,26); // rgb of var(--bofa-red)
+    doc.rect(0, 0, pageWidth, pageHeight, 'F');
+
+    // Set white text color
+    doc.setTextColor(255,255,255);
+
+    // Left padding
+    const left = 18;
+    let y = 24;
+
+    // Heading (Bank of America)
+    doc.setFontSize(22);
+    doc.setFont('helvetica', 'bold');
+    doc.text(receiptData.bank, left, y);
+    y += 10;
+
+    // Subheading (Internal Wire Tracker)
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    doc.text(receiptData.reference, left, y);
+    y += 12;
+
+    // Divider line (white, slightly transparent)
+    doc.setDrawColor(255,255,255);
+    doc.setLineWidth(0.4);
+    doc.line(left, y, pageWidth - left, y);
+    y += 8;
+
+    // Amount block (right aligned)
+    doc.setFontSize(20);
+    doc.setFont('helvetica','bold');
+    // right align amount
+    const amount = receiptData.amount;
+    doc.text(amount, pageWidth - left, 46, { align: 'right' });
+
+    // Transaction details block
+    doc.setFontSize(10);
+    doc.setFont('helvetica','bold');
+    doc.text('Beneficiary', left, y);
+    doc.setFont('helvetica','normal');
+    doc.text(receiptData.beneficiary, left, y + 6);
+    y += 14;
+
+    doc.setFont('helvetica','bold');
+    doc.text('Account Number', left, y);
+    doc.setFont('helvetica','normal');
+    doc.text(receiptData.account, left, y + 6);
+    y += 14;
+
+    doc.setFont('helvetica','bold');
+    doc.text('Sort Code', left, y);
+    doc.setFont('helvetica','normal');
+    doc.text(receiptData.sortCode, left, y + 6);
+    y += 14;
+
+    // Receipt metadata (right column)
+    const metaX = pageWidth - left;
+    let metaY = 80;
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(10);
+    doc.text('Receipt ID:', left, metaY - 2);
+    doc.setFont('helvetica','normal');
+    doc.text(receiptData.receiptId, left, metaY + 6);
+
+    // Date
+    metaY += 20;
+    doc.setFont('helvetica','bold');
+    doc.text('Date:', left, metaY - 2);
+    doc.setFont('helvetica','normal');
+    doc.text(new Date().toLocaleString(), left, metaY + 6);
+
+    // Footer note
+    doc.setFontSize(9);
+    doc.setFont('helvetica','normal');
+    const foot = 'This is a system-generated receipt. For enquiries contact support.';
+    doc.text(foot, left, pageHeight - 24);
+
+    // Save the PDF (filename includes receipt id)
+    const filename = `${receiptData.receiptId || 'receipt'}.pdf`;
+    doc.save(filename);
+  }
+
+  // small util
+  function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
 
 })();
 </script>
